@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>মসজিদ তথ্য সংগ্রহ সিস্টেম</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=Noto+Sans+Bengali:wght@400;600&display=swap');
+
+        /* ==========================================
+           সাধারণ (Global) স্টাইল
+           ========================================== */
+        * {
+            box-sizing: border-box; 
+        }
+
+        body {
+            font-family: 'Noto Sans Bengali', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            overflow-x: hidden; /* ডানে-বামে নড়া পুরোপুরি বন্ধ */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 15px auto;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .app-header {
+            text-align: center;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .app-header h2 { margin: 0; color: #007bff; font-size: 20px; }
+
+        /* বাটন স্টাইল */
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            transition: 0.3s;
+        }
+        .btn-primary { background-color: #007bff; }
+        .btn-success { background-color: #28a745; }
+        .btn-warning { background-color: #ffc107; color: #000; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-secondary { background-color: #6c757d; }
+        
+        .btn:hover { opacity: 0.8; }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap; 
+            gap: 10px;
+        }
+        .top-bar h3 { margin: 0; font-size: 18px; }
+
+        /* ==========================================
+           ১. ড্যাশবোর্ড / লিস্ট ভিউ স্টাইল (Fixed Size)
+           ========================================== */
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* টেবিল যেন স্ক্রিনের বাইরে না যায় */
+        }
+        table.data-table th, table.data-table td {
+            border: 1px solid #ddd;
+            padding: 8px 5px; /* প্যাডিং কমানো হয়েছে */
+            text-align: left;
+            vertical-align: middle;
+            word-wrap: break-word; /* লম্বা লেখা ভেঙে নিচে আসবে */
+            font-size: 14px;
+        }
+        table.data-table th { background-color: #f8f9fa; }
+
+        /* কলামের জায়গা নির্ধারণ (যাতে সুন্দরভাবে ফিট হয়) */
+        table.data-table th:nth-child(1) { width: 40%; } /* মসজিদের নাম */
+        table.data-table th:nth-child(2) { width: 22%; } /* উপজেলা */
+        table.data-table th:nth-child(3) { width: 20%; } /* ইউনিয়ন */
+        table.data-table th:nth-child(4) { width: 18%; text-align: center; } /* অ্যাকশন */
+
+        .action-btns { 
+            display: flex; 
+            flex-direction: column; /* বাটনগুলো নিচে নিচে আসবে */
+            gap: 4px; 
+        }
+
+        .action-btns .btn {
+            padding: 5px 0;
+            font-size: 11px; /* বাটনের ফন্ট ছোট করা হয়েছে */
+            width: 100%;
+            border-radius: 3px;
+        }
+
+        /* ==========================================
+           ২. ফর্ম ভিউ স্টাইল
+           ========================================== */
+        #form-section { display: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+        .form-group label span { font-size: 12px; color: #666; font-weight: normal; }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 16px; /* মোবাইলে অটো-জুম বন্ধ করতে ফন্ট 16px */
+            box-sizing: border-box;
+        }
+        textarea.form-control { resize: vertical; min-height: 60px; }
+        .section-title {
+            background-color: #e9ecef;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 20px 0 10px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* ==========================================
+           মোবাইলের জন্য মিডিয়া কোয়েরি
+           ========================================== */
+        @media (max-width: 600px) {
+            .container { margin: 10px; padding: 10px; }
+            .top-bar { flex-direction: column; align-items: stretch; }
+            .top-bar .btn { width: 100%; }
+            
+            /* মোবাইলে টেবিলের টেক্সট আরও একটু ছোট হবে */
+            table.data-table th, table.data-table td {
+                font-size: 12px;
+                padding: 5px 3px;
+            }
+            .action-btns .btn { font-size: 10px; padding: 4px 0; }
+        }
+
+        /* ==========================================
+           ৩. প্রিন্ট ভিউ 
+           ========================================== */
+        #print-view {
+            display: none;
+            font-family: 'Tiro Bangla', serif;
+            width: 100%;
+            max-width: 210mm;
+            margin: 0 auto;
+            background: #fff;
+        }
+        .print-header { text-align: center; margin-bottom: 15px; }
+        .print-header h2 { margin: 0; font-size: 24px; }
+        .print-header h3 { margin: 5px 0 10px 0; font-size: 20px; }
+        .print-sub-header { font-size: 16px; margin-bottom: 15px; text-align: center; }
+        .underline-text { border-bottom: 1px dashed #000; display: inline-block; min-width: 150px; text-align: center; }
+        
+        .print-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        .print-table th, .print-table td { border: 1px solid #000; padding: 6px 10px; vertical-align: top; }
+        .col-question { width: 45%; }
+        .col-answer { width: 55%; font-family: 'Tiro Bangla', serif; white-space: pre-wrap; }
+        .small-txt { font-size: 12px; }
+        
+        .print-footer { margin-top: 40px; }
+        .signature-area { text-align: right; font-size: 15px; font-weight: bold; margin-top: 60px; margin-bottom: 40px; }
+        .deadline-area { text-align: center; font-size: 15px; font-weight: bold; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 13mm; }
+            body { background: none; padding: 0; margin: 0; }
+            #app-view { display: none !important; }
+            #print-view { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-view" class="container">
+        <div class="app-header">
+            <h2>ইসলামিক ফাউন্ডেশন তথ্য এন্ট্রি সিস্টেম</h2>
+        </div>
+
+        <!-- ১. লিস্ট সেকশন -->
+        <div id="list-section">
+            <div class="top-bar">
+                <h3>সংরক্ষিত ফর্দ তালিকা</h3>
+                <button class="btn btn-primary" onclick="showForm()">+ নতুন তথ্য যুক্ত করুন</button>
+            </div>
+            
+            <!-- টেবিল এখন ১০০% ফিট থাকবে -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>মসজিদ</th>
+                        <th>উপজেলা</th>
+                        <th>ইউনিয়ন</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- জাভাস্ক্রিপ্ট দিয়ে এখানে ডাটা আসবে -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ২. ফর্ম সেকশন -->
+        <div id="form-section">
+            <div class="top-bar">
+                <h3 id="form-title">নতুন তথ্য এন্ট্রি</h3>
+                <button class="btn btn-secondary" onclick="showList()">← তালিকায় ফিরে যান</button>
+            </div>
+            
+            <input type="hidden" id="edit_id">
+
+            <div class="form-group">
+                <label>উপজেলার নাম:</label>
+                <input type="text" id="in_upazila" class="form-control" placeholder="উপজেলার নাম লিখুন">
+            </div>
+            <div class="form-group">
+                <label>১. ইউনিয়নের নাম:</label>
+                <input type="text" id="in_q1" class="form-control" placeholder="ইউনিয়নের নাম">
+            </div>
+            <div class="form-group">
+                <label>২. মসজিদের নাম ও ঠিকানা:</label>
+                <textarea id="in_q2" class="form-control" placeholder="মসজিদের নাম ও বিস্তারিত ঠিকানা"></textarea>
+            </div>
+            <div class="form-group">
+                <label>৩. মসজিদের মোট জনবলের সংখ্যা: <br><span>(পদবি সহ সংখ্যা উল্লেখ করুন)</span></label>
+                <input type="text" id="in_q3" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>৪. মসজিদের ধরন: <br><span>(জামে মসজিদ/পাঞ্জেগানা)</span></label>
+                <input type="text" id="in_q4" class="form-control">
+            </div>
+
+            <div class="section-title">খতিবের তথ্য</div>
+            <div class="form-group"><label>৫. খতিবের নাম, মোবাইল নম্বর ও এনআইডি নম্বর:</label><textarea id="in_q5" class="form-control"></textarea></div>
+            <div class="form-group"><label>৬. খতিবের স্থায়ী ঠিকানা:</label><textarea id="in_q6" class="form-control"></textarea></div>
+            <div class="form-group"><label>৭. অন্য কোন পেশা (যদি থাকে):</label><input type="text" id="in_q7" class="form-control"></div>
+            <div class="form-group"><label>৮. সরকারি কোষাগার থেকে কোন বেতন বা সম্মানি পায় কিনা? <span>(উত্তর হ্যাঁ হলে বিস্তারিত লিখুন)</span></label><textarea id="in_q8" class="form-control"></textarea></div>
+
+            <div class="section-title">ইমামের তথ্য</div>
+            <div class="form-group"><label>৯. ইমামের নাম, মোবাইল নম্বর ও এনআইডি নম্বর:</label><textarea id="in_q9" class="form-control"></textarea></div>
+            <div class="form-group"><label>১০. ইমামের স্থায়ী ঠিকানা:</label><textarea id="in_q10" class="form-control"></textarea></div>
+            <div class="form-group"><label>১১. অন্য কোন পেশা (যদি থাকে):</label><input type="text" id="in_q11" class="form-control"></div>
+            <div class="form-group"><label>১২. সরকারি কোষাগার থেকে কোন বেতন বা সম্মানি পায় কিনা? <span>(উত্তর হ্যাঁ হলে বিস্তারিত লিখুন)</span></label><textarea id="in_q12" class="form-control"></textarea></div>
+
+            <div class="section-title">মুয়াজ্জিনের তথ্য</div>
+            <div class="form-group"><label>১৩. মুয়াজ্জিনের নাম, মোবাইল নম্বর ও এনআইডি নম্বর:</label><textarea id="in_q13" class="form-control"></textarea></div>
+            <div class="form-group"><label>১৪. মুয়াজ্জিনের স্থায়ী ঠিকানা:</label><textarea id="in_q14" class="form-control"></textarea></div>
+            <div class="form-group"><label>১৫. অন্য কোন পেশা (যদি থাকে):</label><input type="text" id="in_q15" class="form-control"></div>
+            <div class="form-group"><label>১৬. সরকারি কোষাগার থেকে কোন বেতন বা সম্মানি পায় কিনা? <span>(উত্তর হ্যাঁ হলে বিস্তারিত লিখুন)</span></label><textarea id="in_q16" class="form-control"></textarea></div>
+
+            <div class="section-title">খাদেমের তথ্য</div>
+            <div class="form-group"><label>১৭. খাদেমের নাম, মোবাইল নম্বর ও এনআইডি নম্বর:</label><textarea id="in_q17" class="form-control"></textarea></div>
+            <div class="form-group"><label>১৮. খাদেমের স্থায়ী ঠিকানা:</label><textarea id="in_q18" class="form-control"></textarea></div>
+
+            <button class="btn btn-success" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 15px;" onclick="saveData()">💾 ডাটা সেভ করুন</button>
+        </div>
+    </div>
+
+
+    <!-- ৩. প্রিন্ট ভিউ -->
+    <div id="print-view">
+        <div class="print-header">
+            <h2>ইসলামিক ফাউন্ডেশন</h2>
+            <h3>কুমিল্লা জেলা</h3>
+            <div class="print-sub-header">
+                কুমিল্লা জেলা, <span class="underline-text" id="out_upazila"></span> উপজেলার খতিব/ইমাম/মুয়াজ্জিন/খাদেমের তথ্য
+            </div>
+        </div>
+
+        <table class="print-table">
+            <tbody>
+                <tr><td class="col-question">১. ইউনিয়নের নাম</td><td class="col-answer" id="out_q1"></td></tr>
+                <tr><td class="col-question">২. মসজিদের নাম ও ঠিকানা</td><td class="col-answer" id="out_q2"></td></tr>
+                <tr><td class="col-question">৩. মসজিদের মোট জনবলের সংখ্যা <br><span class="small-txt">(পদবি সহ সংখ্যা উল্লেখ করুন)</span></td><td class="col-answer" id="out_q3"></td></tr>
+                <tr><td class="col-question">৪. মসজিদের ধরন <br><span class="small-txt">(জামে মসজিদ/পাঞ্জেগানা)</span></td><td class="col-answer" id="out_q4"></td></tr>
+                <tr><td class="col-question">৫. খতিবের নাম, মোবাইল নম্বর <br>ও এনআইডি নম্বর</td><td class="col-answer" id="out_q5"></td></tr>
+                <tr><td class="col-question">৬. খতিবের স্থায়ী ঠিকানা</td><td class="col-answer" id="out_q6"></td></tr>
+                <tr><td class="col-question">৭. অন্য কোন পেশা (যদি থাকে)</td><td class="col-answer" id="out_q7"></td></tr>
+                <tr><td class="col-question">৮. সরকারি কোষাগার থেকে <br>কোন বেতন বা সম্মানি পায় <br>কিনা? <span class="small-txt">(উত্তর হ্যাঁ হলে বিস্তারিত লিখুন)</span></td><td class="col-answer" id="out_q8"></td></tr>
+                <tr><td class="col-question">৯. ইমামের নাম, মোবাইল <br>নম্বর ও এনআইডি নম্বর</td><td class="col-answer" id="out_q9"></td></tr>
+                <tr><td class="col-question">১০. ইমামের স্থায়ী ঠিকানা</td><td class="col-answer" id="out_q10"></td></tr>
+                <tr><td class="col-question">১১. অন্য কোন পেশা (যদি থাকে)</td><td class="col-answer" id="out_q11"></td></tr>
+                <tr><td class="col-question">১২. সরকারি কোষাগার থেকে <br>কোন বেতন বা সম্মানি পায় <br>কিনা? <span class="small-txt">(উত্তর হ্যাঁ হলে বিস্তারিত লিখুন)</span></td><td class="col-answer" id="out_q12"></td></tr>
+                <tr><td class="col-question">১৩. মুয়াজ্জিনের নাম, মোবাইল <br>নম্বর ও এনআইডি নম্বর</td><td class="col-answer" id="out_q13"></td></tr>
+                <tr><td class="col-question">১৪. মুয়াজ্জিনের স্থায়ী ঠিকানা</td><td class="col-answer" id="out_q14"></td></tr>
+                <tr><td class="col-question">১৫. অন্য কোন পেশা (যদি থাকে)</td><td class="col-answer" id="out_q15"></td></tr>
+                <tr><td class="col-question">১৬. সরকারি কোষাগার থেকে <br>কোন বেতন বা সম্মানি পায় <br>কিনা? <span class="small-txt">(উত্তর হ্যাঁ হলে বিস্তারিত লিখুন)</span></td><td class="col-answer" id="out_q16"></td></tr>
+                <tr><td class="col-question">১৭. খাদেমের নাম, মোবাইল <br>নম্বর ও এনআইডি নম্বর</td><td class="col-answer" id="out_q17"></td></tr>
+                <tr><td class="col-question">১৮. খাদেমের স্থায়ী ঠিকানা</td><td class="col-answer" id="out_q18"></td></tr>
+            </tbody>
+        </table>
+
+        <div class="print-footer">
+            <div class="signature-area">মসজিদ কমিটির সভাপতি/সেক্রেটারি/সদস্যের স্বাক্ষর ও মোবাইল নম্বর</div>
+            <div class="deadline-area">আগামী ০১/০৩/২০২৬ খ্রি: এর মাঝে উপজেলা ফিল্ড সুপারভাইজার এর নিকট ফর্মটি জমা দিতে হবে।</div>
+        </div>
+    </div>
+
+    <!-- জাভাস্ক্রিপ্ট লজিক -->
+    <script>
+        window.onload = function() {
+            loadTableData();
+        };
+
+        function showForm() {
+            clearForm();
+            document.getElementById('list-section').style.display = 'none';
+            document.getElementById('form-section').style.display = 'block';
+            document.getElementById('form-title').innerText = "নতুন তথ্য এন্ট্রি";
+            window.scrollTo(0, 0);
+        }
+
+        function showList() {
+            document.getElementById('form-section').style.display = 'none';
+            document.getElementById('list-section').style.display = 'block';
+            loadTableData();
+            window.scrollTo(0, 0);
+        }
+
+        function clearForm() {
+            document.getElementById('edit_id').value = '';
+            document.getElementById('in_upazila').value = '';
+            for(let i=1; i<=18; i++) document.getElementById('in_q' + i).value = '';
+        }
+
+        function saveData() {
+            let id = document.getElementById('edit_id').value;
+            let record = {
+                id: id ? id : Date.now().toString(),
+                upazila: document.getElementById('in_upazila').value,
+            };
+            
+            for(let i=1; i<=18; i++) {
+                record['q' + i] = document.getElementById('in_q' + i).value;
+            }
+
+            let records = JSON.parse(localStorage.getItem('mosqueRecords')) || [];
+
+            if(id) {
+                let index = records.findIndex(r => r.id === id);
+                if(index !== -1) records[index] = record;
+                alert("ডাটা সফলভাবে আপডেট করা হয়েছে!");
+            } else {
+                records.push(record);
+                alert("ডাটা সফলভাবে সেভ করা হয়েছে!");
+            }
+
+            localStorage.setItem('mosqueRecords', JSON.stringify(records));
+            showList();
+        }
+
+        function loadTableData() {
+            let records = JSON.parse(localStorage.getItem('mosqueRecords')) || [];
+            let tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            if(records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">কোনো ডাটা পাওয়া যায়নি। নতুন যুক্ত করুন।</td></tr>';
+                return;
+            }
+
+            records.forEach(record => {
+                let row = `<tr>
+                    <td>${record.q2 || 'নাম নেই'}</td>
+                    <td>${record.upazila || '-'}</td>
+                    <td>${record.q1 || '-'}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-warning" onclick="editData('${record.id}')">এডিট</button>
+                            <button class="btn btn-primary" onclick="printData('${record.id}')">প্রিন্ট</button>
+                            <button class="btn btn-danger" onclick="deleteData('${record.id}')">ডিলিট</button>
+                        </div>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function editData(id) {
+            let records = JSON.parse(localStorage.getItem('mosqueRecords')) || [];
+            let record = records.find(r => r.id === id);
+            
+            if(record) {
+                document.getElementById('edit_id').value = record.id;
+                document.getElementById('in_upazila').value = record.upazila;
+                for(let i=1; i<=18; i++) {
+                    document.getElementById('in_q' + i).value = record['q' + i] || '';
+                }
+                
+                document.getElementById('list-section').style.display = 'none';
+                document.getElementById('form-section').style.display = 'block';
+                document.getElementById('form-title').innerText = "তথ্য সংশোধন করুন";
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function deleteData(id) {
+            if(confirm("আপনি কি নিশ্চিত যে এই ডাটা ডিলিট করতে চান?")) {
+                let records = JSON.parse(localStorage.getItem('mosqueRecords')) || [];
+                records = records.filter(r => r.id !== id);
+                localStorage.setItem('mosqueRecords', JSON.stringify(records));
+                loadTableData();
+            }
+        }
+
+        function printData(id) {
+            let records = JSON.parse(localStorage.getItem('mosqueRecords')) || [];
+            let record = records.find(r => r.id === id);
+
+            if(record) {
+                document.getElementById('out_upazila').innerText = record.upazila || '';
+                for(let i=1; i<=18; i++) {
+                    document.getElementById('out_q' + i).innerText = record['q' + i] || '';
+                }
+                
+                if (typeof AndroidInterface !== "undefined") {
+                    AndroidInterface.doPrint(); 
+                } else {
+                    window.print();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
