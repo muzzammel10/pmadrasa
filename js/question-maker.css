@@ -1,0 +1,265 @@
+/* qmk print orientation */
+@page { size: A4 portrait; margin: 12mm; }
+
+/* qmk styles */
+.qmk-scope{
+    --qink:#1a1d1a;
+    --qpaper:#fbf8ee;
+    --qpaper-edge:#e9e2c8;
+    --qgreen-900:#0d3d2c;
+    --qgreen-700:#12523a;
+    --qgreen-500:#1c7a52;
+    --qgold-600:#b8892c;
+    --qgold-200:#f1e2b8;
+    --qpanel:#f4f2ea;
+    --qpanel-line:#dcd6c2;
+    --qdanger:#a8402f;
+    --qshadow: 0 10px 30px -12px rgba(13,61,44,0.35);
+  }
+  .qmk-scope{
+    background:
+      radial-gradient(circle at 15% 10%, rgba(184,137,44,0.08), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(28,122,82,0.10), transparent 45%),
+      var(--qpanel);
+    font-family:'Tiro Bangla',serif;
+    color:var(--qink);
+    border-radius:14px;
+    padding-bottom:6px;
+    max-width: 100%;
+    overflow: hidden; /* মোবাইল স্ক্রিনের বাইরে কনটেন্ট যাওয়া রোধ করতে */
+  }
+  .qmk-scope .display{font-family:'Tiro Bangla',serif;}
+
+  /* ===== Action bar (সংরক্ষণ/প্রিন্ট) ===== */
+  .qmk-scope .qmk-actionbar{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(135deg, var(--qgreen-900), var(--qgreen-700));
+    color:#fdf9ec;
+    padding:12px 18px;
+    border-radius:14px 14px 0 0;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    box-shadow:var(--qshadow);
+  }
+  .qmk-scope .qmk-current-label{font-size:12.5px; opacity:.85;}
+  .qmk-scope .qmk-spacer{flex:1;}
+  .qmk-scope .btn{
+    border:none; cursor:pointer; font-family:inherit; font-weight:600;
+    border-radius:9px; padding:9px 16px; font-size:14px; transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .qmk-scope .btn:active{transform:translateY(1px);}
+  .qmk-scope .btn-gold{background:linear-gradient(135deg,#e9c877,var(--qgold-600)); color:#2c1c05;}
+  .qmk-scope .btn-ghost{background:rgba(255,255,255,0.12); color:#fdf9ec; border:1px solid rgba(255,255,255,0.28);}
+  .qmk-scope .btn-ghost:hover{background:rgba(255,255,255,0.2);}
+
+  /* ===== Layout ===== */
+  .qmk-scope .workspace{
+    display:grid;
+    grid-template-columns: 400px 1fr;
+    gap:22px;
+    padding:22px;
+    max-width:1500px;
+    margin:0 auto;
+    align-items:start;
+  }
+  @media (max-width: 980px){
+    .qmk-scope .workspace{
+      grid-template-columns:1fr;
+      padding: 10px; /* অতিরিক্ত ফাঁকা জায়গা কমাতে প্যাডিং কমানো হলো */
+    }
+    .qmk-scope .workspace > * {
+      min-width: 0;
+      max-width: 100%; /* গ্রিড চাইল্ডের আকার যেন স্ক্রিনের চেয়ে বড় না হয় */
+    }
+  }
+
+  /* ===== Left panel ===== */
+  .qmk-scope .panel{
+    background:#fffdf7;
+    border:1px solid var(--qpanel-line);
+    border-radius:16px;
+    box-shadow:var(--qshadow);
+    overflow:hidden;
+    margin-bottom:18px;
+  }
+  .qmk-scope .panel-head{
+    padding:14px 18px; background:var(--qgold-200);
+    border-bottom:1px solid var(--qpanel-line);
+    font-weight:700; font-size:15px; color:#3a2c07;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .qmk-scope .panel-head.collapsible{cursor:pointer; user-select:none;}
+  .qmk-scope .panel-head .chevron{font-size:12px; color:#7a611e;}
+  .qmk-scope .panel-body.collapsed{display:none;}
+  .qmk-scope .panel-body{padding:16px 18px;}
+  .qmk-scope .field{margin-bottom:12px;}
+  .qmk-scope .field label{display:block; font-size:12.5px; font-weight:600; color:#4a5a4f; margin-bottom:4px;}
+  .qmk-scope .field input, .qmk-scope .field select, .qmk-scope .field textarea{
+    width:100%; padding:8px 10px; border:1px solid #cfd6cd; border-radius:8px;
+    font-family:'Tiro Bangla',serif; font-size:14px; background:#fff;
+  }
+  .qmk-scope .field textarea{resize:vertical; min-height:44px;}
+  .qmk-scope .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+
+  .qmk-scope .check-row{display:flex; align-items:center; gap:9px; margin-bottom:10px; font-size:13.5px; font-weight:600; color:#2f3d33;}
+  .qmk-scope .check-row input{width:17px; height:17px; accent-color:var(--qgreen-500); flex:none;}
+  .qmk-scope .layout-options{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
+  .qmk-scope .layout-opt{
+    display:flex; align-items:center; gap:10px; border:1px solid #cfd6cd; border-radius:10px;
+    padding:9px 10px; cursor:pointer; font-size:13px; font-weight:600; color:#33422f;
+  }
+  .qmk-scope .layout-opt.active{border-color:var(--qgreen-500); background:#eef6f0;}
+  .qmk-scope .layout-opt input{accent-color:var(--qgreen-500);}
+
+  .qmk-scope .type-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;}
+  .qmk-scope .type-btn{
+    border:1px dashed #a9b8ac; background:#f3f7f2; border-radius:10px;
+    padding:10px 8px; font-size:12.5px; font-weight:600; text-align:center; color:var(--qgreen-900);
+    cursor:pointer; transition:.15s;
+  }
+  .qmk-scope .type-btn:hover{background:var(--qgreen-500); color:#fff; border-color:var(--qgreen-500);}
+
+  .qmk-scope #qmkBuilderList{display:flex; flex-direction:column; gap:12px; margin-top:14px;}
+  .qmk-scope .qcard{
+    border:1px solid var(--qpanel-line); border-radius:12px; padding:12px; background:#fbfaf4;
+    position:relative;
+  }
+  .qmk-scope .qcard-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+  .qmk-scope .qcard-tag{
+    font-size:11px; font-weight:700; color:#fff; background:var(--qgreen-500);
+    padding:3px 9px; border-radius:20px;
+  }
+  .qmk-scope .qcard-tools{display:flex; gap:6px;}
+  .qmk-scope .icon-btn{
+    width:26px; height:26px; border-radius:6px; border:1px solid #cfd6cd; background:#fff;
+    cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center;
+  }
+  .qmk-scope .icon-btn:hover{background:#eef2ec;}
+  .qmk-scope .icon-btn.danger{color:var(--qdanger); border-color:#e3bdb4;}
+  .qmk-scope .miniLabel{font-size:11.5px; color:#6b7a70; font-weight:600; margin:6px 0 3px;}
+  .qmk-scope .opt-row{display:flex; gap:6px; margin-bottom:5px; align-items:center;}
+  .qmk-scope .opt-row input[type=text]{flex:1;}
+  .qmk-scope .add-mini{font-size:12px; color:var(--qgreen-700); font-weight:700; cursor:pointer; background:none; border:none; padding:2px 0;}
+  .qmk-scope .empty-hint{padding:22px 14px; text-align:center; color:#7c8a80; font-size:13px; line-height:1.7;}
+
+  /* ===== Right: Paper preview ===== */
+  .qmk-scope .preview-wrap{
+    background:#fffdf7;
+    border-radius:16px;
+    padding:10px;
+    box-shadow:var(--qshadow);
+    display:flex; justify-content:center;
+    overflow-x:auto;
+    overflow-y:visible;
+    max-width: 100%;
+  }
+  
+  .qmk-scope .preview-page{
+    background:var(--qpaper);
+    border:1px solid var(--qpaper-edge);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    font-size:13.5px;
+    --q-gap:14px;
+  }
+  .qmk-scope .preview-page.layout-portrait{ width:100%; max-width:760px; padding:34px 38px 46px; min-height:900px;}
+  .qmk-scope .preview-page.layout-landscape-single{
+    width:100%; max-width:1180px; padding:30px 50px 40px;
+    columns:2; column-gap:44px;
+    column-fill:balance;
+  }
+  .qmk-scope .preview-page.layout-landscape-double{ width:100%; max-width:1180px; padding:26px 30px; display:flex; min-height:660px;}
+
+  .qmk-scope .paper-copy{flex:1; min-width:0; padding:0 22px; overflow:hidden;}
+  .qmk-scope .cut-line{
+    flex:none; width:1px; border-left:1px dashed #9a9a86; margin:0 4px;
+    position:relative;
+  }
+  .qmk-scope .cut-line::before{
+    content:'✂'; position:absolute; top:-4px; left:50%; transform:translate(-50%,-100%) rotate(90deg);
+    font-size:14px; color:#9a9a86;
+  }
+
+  .qmk-scope .p-institute{
+    text-align:center; font-family:'Tiro Bangla',serif; font-weight:700;
+    font-size:1.48em; color:#111; margin:0;
+  }
+  .qmk-scope .p-examtitle{text-align:center; font-size:1.07em; font-weight:600; color:#111; margin:4px 0 2px;}
+  .qmk-scope .p-classsubject{text-align:center; font-size:1em; font-weight:600; color:#111; margin:0 0 8px;}
+  .qmk-scope .p-rule-solid{border-top:1.5px solid #333; margin:6px 0 10px;}
+  .qmk-scope .p-top-ornament{
+    text-align:center; font-size:0.95em; letter-spacing:3px; color:var(--qgold-600); margin-bottom:6px;
+  }
+  .qmk-scope .p-meta-row{display:flex; justify-content:space-between; font-size:1em; margin-bottom:10px; font-weight:700;}
+  .qmk-scope .p-fillrow{font-size:1em; margin:5px 0; display:flex; gap:6px;}
+  .qmk-scope .p-fillrow .fill{flex:1; border-bottom:1px dotted #8a8a78; min-width:40px; height:1.2em;}
+  .qmk-scope .p-questions{margin-top:4px;}
+  .qmk-scope .p-q{margin-bottom:var(--q-gap, 14px);}
+  .qmk-scope .p-q-head{display:flex; justify-content:space-between; gap:10px; font-size:1.04em; font-weight:600; margin-bottom:4px;}
+  .qmk-scope .p-q-head .marks{white-space:nowrap; font-weight:700; color:var(--qink);}
+  .qmk-scope .p-sub{margin:3px 0 3px 20px; font-size:1em;}
+  .qmk-scope .p-blankline{border-bottom:1px dotted #8a8a78; height:1.5em; margin:4px 0;}
+  .qmk-scope .p-letterbox-row{display:flex; gap:6px; flex-wrap:wrap; margin:6px 0;}
+  .qmk-scope .p-letterbox{
+    width:2.35em; height:2.35em; border:1px solid #999; border-radius:4px;
+    display:flex; align-items:center; justify-content:center; font-size:1.04em; background:#fff;
+  }
+  .qmk-scope .p-blankbox{width:2.35em; height:2.35em; border:1px solid #999; border-radius:4px; background:#fff;}
+  .qmk-scope .p-opts{display:flex; flex-wrap:wrap; gap:14px; margin:4px 0 4px 20px; font-size:1em;}
+  .qmk-scope .p-match-cols{display:flex; gap:26px; margin:4px 0 4px 20px;}
+  .qmk-scope .p-match-col{flex:1;}
+  .qmk-scope .p-match-col div{font-size:1em; margin-bottom:5px;}
+  .qmk-scope .p-note{margin-top:6px; font-size:0.9em; color:#6b5b1c; font-style:italic;}
+  .qmk-scope .p-footer-space{height:6px;}
+
+  /* fractions & math */
+  .qmk-scope .frac{display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; margin:0 3px; line-height:1.05; font-size:0.95em;}
+  .qmk-scope .frac-num{padding:0 3px;}
+  .qmk-scope .frac-den{border-top:1px solid #222; padding:1px 3px 0;}
+  .qmk-scope .math-col{display:inline-block; font-family:'Courier New', monospace; font-size:1.15em; margin:6px 0 10px 20px; text-align:right;}
+  .qmk-scope .math-col-row{display:flex; justify-content:flex-end; gap:8px; padding:1px 2px;}
+  .qmk-scope .math-op{width:1em; text-align:left; font-weight:700;}
+  .qmk-scope .math-col-line{border-top:2px solid #222; margin-top:3px;}
+  .qmk-scope .math-col-answer{height:1.3em;}
+
+  .qmk-scope .p-arabic-passage{
+    font-family:'Amiri','Scheherazade New','Tiro Bangla',serif;
+    font-size:1.3em; line-height:2.15; margin:6px 0 10px;
+    white-space:normal; word-break:break-word; overflow-wrap:anywhere;
+    display:block; width:100%; box-sizing:border-box;
+    text-align:right; direction:rtl;
+  }
+  .qmk-scope .p-arabic-sub{
+    font-family:'Amiri','Scheherazade New','Tiro Bangla',serif;
+    font-size:1.1em; margin:4px 0 6px 0; line-height:1.9;
+    white-space:normal; word-break:break-word; overflow-wrap:anywhere;
+    display:block; width:100%; box-sizing:border-box;
+    text-align:right;
+  }
+
+  /* বাজার তালিকার (bank) কার্ড */
+  .qmk-scope .qmk-bank-row{border:1px solid var(--qpanel-line); border-radius:10px; padding:8px 10px; cursor:pointer; background:#fff; margin-bottom:8px;}
+  .qmk-scope .qmk-bank-row:hover{background:#f7f5ec;}
+
+  /* print — পপ-আপ window এ সরাসরি print হবে, তাই body-level print CSS */
+  @media print{
+    body{ margin:0; padding:0; background:#fff; }
+    .preview-wrap{
+      padding:0 !important; background:none !important;
+      box-shadow:none !important; border-radius:0 !important;
+    }
+    .preview-page{
+      box-shadow:none !important; border:none !important;
+      width:100% !important; max-width:none !important;
+      margin:0 !important;
+    }
+    .preview-page.layout-portrait{
+      padding:14mm 16mm !important;
+      min-height:unset !important;
+    }
+    .preview-page.layout-landscape-double{
+      padding:10mm 12mm !important;
+      min-height:unset !important;
+    }
+    .preview-page.layout-landscape-single{
+      padding:10mm 14mm !important;
+    }
+  }
